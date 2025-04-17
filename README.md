@@ -1,6 +1,6 @@
 # Pull Request Generator AI
 
-Este projeto é uma ferramenta automatizada que baixa os commits de diferença entre uma `base branch` e uma `head branch` no GitHub. Ele usa o GPT-4o-mini para criar descrições de pull request baseadas nos textos desses commits.
+Este projeto é uma ferramenta automatizada que baixa os commits de diferença entre uma `base branch` e uma `head branch` no Bitbucket. Ele usa o GPT-4o-mini para criar descrições de pull request baseadas nos textos e diffs desses commits.
 
 ## Sumário
 
@@ -16,23 +16,24 @@ Este projeto é uma ferramenta automatizada que baixa os commits de diferença e
 
 ## Funcionalidades
 
-- Baixar commits entre duas branches no GitHub
-- Enviar o texto dos commits para a API do GPT-4o-mini
+- Baixar commits entre duas branches no Bitbucket
+- Obter o diff de cada commit individual entre a base e o topo
+- Enviar os textos e códigos para a API do GPT-4o-mini (ou outro LLM)
 - Criar uma descrição detalhada para um pull request
-- Publicar o pull request criado no repositório
-- **Análise do código adicionado** para gerar insights adicionais
-- **Detecção automática da branch e do repositório** para facilitar o fluxo
+- Publicar automaticamente o pull request no repositório Bitbucket
+- **Análise do código alterado** para enriquecer a descrição
+- **Detecção automática do repositório, branch atual e remote**
 
-## Recomendacão para Commits Detalhados
+## Recomendação para Commits Detalhados
 
-Para obter melhores resultados com a IA, mantenha tanto o **título** quanto as **descrições** dos commits detalhados. Isso ajuda a IA a entender o contexto do código adicionado e gerar descrições mais precisas e informativas.
+Para obter melhores resultados com a IA, mantenha tanto o **título** quanto a **descrição** dos commits detalhados. Isso ajuda a IA a entender o contexto das mudanças e gerar descrições mais úteis e informativas para o pull request.
 
 ## Pré-requisitos
 
 - Node.js instalado
-- Conta no GitHub com token de acesso
-- Conta no OpenAI com chave de acesso
-- (Opcional) Ollama
+- Conta no Bitbucket com App Password habilitado
+- Conta na OpenAI com chave de API válida
+- (Opcional) Ollama para uso local com Llama3
 
 ## Instalação
 
@@ -46,8 +47,9 @@ cd pull-request-generator
 2. Crie um arquivo `.env` na raiz do projeto e adicione suas chaves da API:
 
 ```env
-GIT_HUB_TOKEN=seutoken_github
-OPEN_AI_KEY=suachave_openai
+BITBUCKET_USERNAME=seu_username
+BITBUCKET_APP_PASSWORD=seu_app_password
+OPEN_AI_KEY=sua_chave_openai
 ```
 
 ## Configuração
@@ -56,19 +58,19 @@ OPEN_AI_KEY=suachave_openai
 
 #### 1. Adicionar Caminho do Diretório ao ZSH
 
-Adicione o diretório onde você clonou o repositório ao seu `PATH`. Abra o terminal e edite seu arquivo `.zshrc`:
+Abra seu terminal e edite o arquivo `.zshrc`:
 
 ```sh
 nano ~/.zshrc
 ```
 
-Adicione a seguinte linha, substituindo `<CAMINHO_DO_DIRETÓRIO>` pelo caminho real do diretório clonado:
+Adicione:
 
 ```sh
 export PATH=$PATH:<CAMINHO_DO_DIRETÓRIO>
 ```
 
-Salve e feche o arquivo, depois recarregue as configurações do ZSH:
+Depois, recarregue:
 
 ```sh
 source ~/.zshrc
@@ -76,13 +78,13 @@ source ~/.zshrc
 
 #### 2. Criar Alias Global no ZSH
 
-Ainda no arquivo `.zshrc`, adicione a seguinte linha para criar um alias global que executa `npm start` no diretório do projeto:
+Ainda no `.zshrc`:
 
 ```sh
 alias generate-pr='(original_dir=$(pwd); cd <CAMINHO_DO_DIRETÓRIO>; npm start -- --original-dir="$original_dir")'
 ```
 
-Substitua `<CAMINHO_DO_DIRETÓRIO>` pelo caminho real do diretório clonado. Salve, feche o arquivo e recarregue as configurações do ZSH novamente:
+Depois:
 
 ```sh
 source ~/.zshrc
@@ -90,25 +92,25 @@ source ~/.zshrc
 
 ### Configuração para Usuários do Bash
 
-1. Abra o terminal e edite o arquivo `.bashrc`:
+1. Edite o `.bashrc`:
 
 ```sh
 nano ~/.bashrc
 ```
 
-2. Adicione o caminho do diretório clonado ao `PATH`:
+2. Adicione o caminho:
 
 ```sh
 export PATH=$PATH:<CAMINHO_DO_DIRETÓRIO>
 ```
 
-3. Adicione um alias para executar o projeto:
+3. Crie o alias:
 
 ```sh
 alias generate-pr='(original_dir=$(pwd); cd <CAMINHO_DO_DIRETÓRIO>; npm start -- --original-dir="$original_dir")'
 ```
 
-4. Salve e feche o arquivo. Recarregue as configurações do Bash:
+4. Recarregue:
 
 ```sh
 source ~/.bashrc
@@ -116,22 +118,32 @@ source ~/.bashrc
 
 ## Uso
 
-Para iniciar a aplicação, simplesmente execute o alias criado:
+Com tudo configurado, execute:
 
 ```sh
 generate-pr
 ```
 
+O serviço irá:
+
+1. Detectar o repositório Bitbucket e a branch atual
+2. Comparar a branch atual com a base (ex: `main`)
+3. Coletar todos os commits e diffs intermediários
+4. Gerar uma descrição de pull request com IA
+5. Criar o PR via API do Bitbucket
+
 ## Llama3
 
-Para rodar o PR Generator usando o Llama LLM localmente, é preciso instalar o Ollama: [Download Ollama](https://ollama.com/download)
+Você pode usar o modelo **Llama3** localmente com o Ollama:
 
-### Executando o Llama3
+### 1. Instalar o Ollama
 
-Antes de utilizar, é preciso rodar o servidor do Llama na sua máquina:
+[Download Ollama](https://ollama.com/download)
+
+### 2. Rodar o modelo:
 
 ```sh
 ollama run llama3
 ```
 
-Para que o Pull Request Generator use o Llama, no ato de gerar o PR você deve selecionar o Llama3 como modelo de IA desejado.
+Na hora da geração do PR, você poderá selecionar o **Llama3** como o modelo de IA desejado.
