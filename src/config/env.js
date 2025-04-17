@@ -9,15 +9,17 @@ export function loadEnv() {
   }
 
   const apiKey = process.env.OPEN_AI_KEY;
-  const githubToken = process.env.GIT_HUB_TOKEN;
+  const bitbucketAppPassword = process.env.BITBUCKET_APP_PASSWORD;
+  const bitbucketUserName = process.env.BITBUCKET_USER_NAME;
 
-  return { apiKey, githubToken, originalDir };
+
+  return { apiKey, bitbucketAppPassword, bitbucketUserName, originalDir };
 }
 
-export function ensureTokens(apiKey, githubToken) {
-  if (!apiKey || !githubToken) {
+export function ensureTokens(apiKey, bitbucketAppPassword, bitbucketUserName) {
+  if (!apiKey || !bitbucketAppPassword || !bitbucketUserName) {
     console.error(
-      "As chaves de API (OPEN_AI_KEY) e GitHub token (GIT_HUB_TOKEN) são necessárias.",
+      "As chaves de API (OPEN_AI_KEY), Bitbucket app password (BITBUCKET_APP_PASSWORD) e Bitbucker user name (BITBUCKET_USER_NAME) são necessárias.",
     );
     process.exit(1);
   }

@@ -4,15 +4,18 @@ import { configDotenv } from "dotenv";
 import inquirer from "inquirer";
 import { loadEnv, ensureTokens } from "./config/env.js";
 import { getPrompts } from "./config/prompts.js";
-import { detectBranch, detectOwnerAndRepo } from "./git/detectRepo.js";
-import { getCommitsFromGitHub } from "./github/getCommits.js";
-import { createPullRequest } from "./github/createPullRequest.js";
+import { detectBranch, detectWorkspaceAndRepo } from "./git/detectRepo.js";
 import { generatePullRequestDescription } from "./openai/generateDescription.js";
+import getCommitsFromBitbucket from "./bitbucket/getCommits.js";
+import genAuthToken from "./bitbucket/genAuthToken.js";
+import createPullRequest from "./bitbucket/createPullRequest.js";
 
 configDotenv();
 
-const { apiKey, githubToken, originalDir } = loadEnv();
-ensureTokens(apiKey, githubToken);
+const { apiKey, bitbucketAppPassword, originalDir, bitbucketUserName } =
+  loadEnv();
+
+ensureTokens(apiKey, bitbucketAppPassword, bitbucketUserName);
 
 async function main() {
   let currentBranch = "";
@@ -20,28 +23,31 @@ async function main() {
     currentBranch = detectBranch(originalDir);
   } catch (err) {
     console.error(
-      "Falha ao detectar a branch atual. Você poderá informá-la manualmente.",
+      "Falha ao detectar a branch atual. Você poderá informá-la manualmente."
     );
   }
 
-  const { detectedOwner, detectedRepo } = detectOwnerAndRepo(originalDir);
+  const { detectedWorkspace, detectedRepo } =
+    detectWorkspaceAndRepo(originalDir);
 
   const answers = await inquirer.prompt(
     getPrompts({
-      detectedOwner,
+      detectedWorkspace,
       detectedRepo,
       currentBranch,
-    }),
+    })
   );
 
-  const { owner, repo, headBranch, baseBranch, model, title } = answers;
+  const { workspace, repo, headBranch, baseBranch, model, title } = answers;
 
-  const commits = await getCommitsFromGitHub({
-    owner,
-    repo,
-    baseBranch,
-    headBranch,
-    githubToken,
+  const bitbucketToken = genAuthToken(bitbucketAppPassword, bitbucketUserName);
+
+  const commits = await getCommitsFromBitbucket({
+    workspace: workspace,
+    repo: repo,
+    baseBranch: baseBranch,
+    headBranch: headBranch,
+    token: bitbucketToken,
   });
 
   if (!commits || commits.length === 0) {
@@ -52,23 +58,23 @@ async function main() {
   const description = await generatePullRequestDescription(
     commits,
     model,
-    apiKey,
+    apiKey
   );
 
   console.log("Descrição do Pull Request Gerada:\n", description);
 
   const pr = await createPullRequest({
-    owner,
+    workspace,
     repo,
     headBranch,
     baseBranch,
     title,
-    body: description,
-    githubToken,
+    description,
+    token: bitbucketToken,
   });
 
   if (pr) {
-    console.log(`Pull Request criado com sucesso: ${pr.html_url}`);
+    console.log(`Pull Request criado com sucesso: ${pr.links.html.href}`);
   }
 }
 

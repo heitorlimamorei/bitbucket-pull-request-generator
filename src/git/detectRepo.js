@@ -1,5 +1,5 @@
 import { execSync } from "child_process";
-import { parseGitHubUrl } from "./parseGitHubUrl.js";
+import { parseBitbucketUrl } from "./parseBitbucketUrl.js";
 
 export function detectBranch(originalDir) {
   if (!originalDir) {
@@ -15,8 +15,8 @@ export function detectBranch(originalDir) {
   }).trim();
 }
 
-export function detectOwnerAndRepo(originalDir) {
-  let detectedOwner = "";
+export function detectWorkspaceAndRepo(originalDir) {
+  let detectedWorkspace = "";
   let detectedRepo = "";
 
   try {
@@ -24,8 +24,8 @@ export function detectOwnerAndRepo(originalDir) {
       encoding: "utf8",
       cwd: originalDir,
     }).trim();
-    const parsed = parseGitHubUrl(remoteUrl);
-    detectedOwner = parsed.owner;
+    const parsed = parseBitbucketUrl(remoteUrl);
+    detectedWorkspace = parsed.workspace;
     detectedRepo = parsed.repo;
   } catch (err) {
     console.error(
@@ -33,5 +33,5 @@ export function detectOwnerAndRepo(originalDir) {
     );
   }
 
-  return { detectedOwner, detectedRepo };
+  return { detectedWorkspace, detectedRepo };
 }

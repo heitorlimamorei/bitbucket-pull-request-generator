@@ -1,9 +1,9 @@
-export function getPrompts({ detectedOwner, detectedRepo, currentBranch }) {
+export function getPrompts({ detectedWorkspace, detectedRepo, currentBranch }) {
   return [
     {
-      name: "owner",
-      message: "Digite o nome do proprietário do repositório (owner):",
-      default: detectedOwner,
+      name: "workspace",
+      message: "Digite o nome do workspace (ws):",
+      default: detectedWorkspace,
     },
     {
       name: "repo",
