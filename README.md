@@ -40,14 +40,14 @@ Para obter melhores resultados com a IA, mantenha tanto o **título** quanto a *
 1. Clone o repositório:
 
 ```sh
-git clone https://github.com/heitorlimamorei/pull-request-generator
+git clone https://github.com/heitorlimamorei/bitbucket-pull-request-generator
 cd pull-request-generator
 ```
 
 2. Crie um arquivo `.env` na raiz do projeto e adicione suas chaves da API:
 
 ```env
-BITBUCKET_USERNAME=seu_username
+BITBUCKET_USER_NAME=seu_username
 BITBUCKET_APP_PASSWORD=seu_app_password
 OPEN_AI_KEY=sua_chave_openai
 ```
